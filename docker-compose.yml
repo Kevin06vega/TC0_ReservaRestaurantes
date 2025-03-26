@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: appdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./auth-service:/app
+    environment:
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=appdb
+      - DB_PORT=5432
+      - SALT_ROUNDS=10
+      - SECRET_JWT_KEY=e73945fc30145b9c3c0b1d8a4f83cf716f65df187fc402fbdaf8cf5c81a8c46c05151dcb8a457f3536e712d27528599eaf90c5c6ec4d56ea2de6e1c162c7a5f8
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+  api-service:
+    build: ./api-service
+    container_name: api-service
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./api-service:/app
+    environment:
+      - PORT=3001
+      - DB_HOST=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=appdb
+      - DB_PORT=5432
+      - SECRET_JWT_KEY=e73945fc30145b9c3c0b1d8a4f83cf716f65df187fc402fbdaf8cf5c81a8c46c05151dcb8a457f3536e712d27528599eaf90c5c6ec4d56ea2de6e1c162c7a5f8
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+networks:
+  backend:
