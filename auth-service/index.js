@@ -121,13 +121,7 @@ app.delete('/users/:id', async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar usuario' })
   }
 })
-
-
-
-
-
-
-
+ 
 // LOGOUT
 app.post('/logout', (req, res) => {
   res.clearCookie('access_token').json({ message: 'Logout successful' })
@@ -142,3 +136,6 @@ app.get('/protected', verifyToken, (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
+// Al final de tu archivo index.js, agrega esto
+export default app;
